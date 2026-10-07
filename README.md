@@ -20,7 +20,7 @@ Due to the absence of the target physical STM32F103 chip during initial staging,
 
 The following precise engineering calculations and architectural assumptions are implemented in the project configuration:
 1. **8-bit PWM Frequency Alignment:** To write raw incoming UART bytes (0–255) directly into the timer's compare register (`TIM1->CCR1`) without computation scaling, the Counter Period (`ARR`) was locked at **255**. Under a 72 MHz bus clock, the Prescaler (`PSC`) was calculated as:
-   Prescaler = ( 72,000,000 Hz ) / (( 5,000  Hz) * 256)) - 1 = 55.25 ≈ 55
+   Prescaler = ( 72,000,000 Hz ) / ( ( 5,000  Hz) * 256 ) - 1 = 55.25 = 55
    *This yields a real physical ШІМ (PWM) frequency of 5.02 kHz, completely within strict engineering tolerance.*
 2. **Flash Topology Management:** On the target STM32F103, the Flash page size is **1 KB**. The requirements specify reading and writing at the `0x0800FC00` block, which maps perfectly to the beginning of the final page (**Page 63**). Erasing this page via `HAL_FLASHEx_Erase` affects exactly 1024 bytes at the very edge of the Flash matrix, keeping the main application code completely untouched and safe.
 3. **ADC Clock Constraints:** To meet the 12 MHz maximum ADC clock limit under a 72 MHz system clock, the APB2 peripheral clock divider for the ADC interface (`ADC Prescaler`) was explicitly configured to **`/6`** inside the CubeMX Clock Tree structure (72 MHz / 6 = 12 MHz). The 3.3V reference serves as the hardware full-scale measurement threshold.
